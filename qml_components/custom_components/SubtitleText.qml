@@ -1,5 +1,5 @@
 import QtQuick
 
 TitleText{
-    font.pixelsize: 16   
+    font.pixelSize: 16
 }

@@ -2,7 +2,7 @@ import QtQuick
 
 Item{ //Browser
     Text{
-        text: "Browser"
+        text: "Movie List View"
         font.pixelSize: 30
     }
 }

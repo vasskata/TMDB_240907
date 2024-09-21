@@ -1,7 +1,7 @@
 import QtQuick
 
 Text{
-    text: "Title text"
+    text: "Title Text"
     color: "black"
     font.bold: true
     font.pixelSize: 20
