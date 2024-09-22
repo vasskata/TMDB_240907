@@ -2,35 +2,33 @@ import QtQuick
 import Qt5Compat.GraphicalEffects
 import QtQuick.Layouts
 
+
 Item{
-    
+
     RoundedBox{
-        id: source_rect        
+        id: source_rect
         visible: false
         anchors.fill: parent
-        
-        Image{ //poster
+
+        Image{ // Poster
             id: poster
             source: "../../resources/poster.webp"
             sourceSize: Qt.size(source_rect.width, source_rect.height)
 
-            
-            Rectangle {
+            Rectangle{
                 id: popularity_progress
                 width: 60
                 height: width
-                color: "Teal"
+                color: "teal"
                 radius: width
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: -20
                 anchors.left: parent.left
                 anchors.leftMargin: 10
-                
             }
-            
         }
 
-        Item{ // Movie title container
+        Item{ //Movie title container
             anchors.left: source_rect.left
             anchors.right: source_rect.right
             anchors.bottom: source_rect.bottom
@@ -38,37 +36,37 @@ Item{
 
             anchors.margins: 5
             anchors.topMargin: 20
-            
+
             ColumnLayout{
+                anchors.fill: parent
 
                 SubtitleText{
-                    
-                    text:"Deadpool & Wolverine"
+                    text: "Saving Bikini Bottom: The Sandy Cheeks Movie"
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                    
                     Layout.fillWidth: true
-                    
                 }
 
                 Text{
-                    text: "2024  Juli 25"
+                    text: "Jul 25, 2024"
                 }
             }
-
-
         }
-
     }
 
+
     DropShadow{
-        
         anchors.fill: parent
         horizontalOffset: 3
         verticalOffset: 3
         radius: 8
-        color: "teal"
+        color: "#e3e3e3"
         source: source_rect
-        
     }
-    
+
+    MouseArea{
+        anchors.fill: parent
+
+        cursorShape: Qt.PointingHandCursor
+        onClicked: main_layout.state = "movie-details"
+    }
 }
