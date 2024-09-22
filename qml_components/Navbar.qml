@@ -13,7 +13,7 @@ Rectangle{  // Header
         anchors.rightMargin: 30
 
         Image{
-            source: "../resources/logo.svg"
+            source: Resources.get("logo.svg")
             MouseArea{
                 anchors.fill: parent
                 cursorShape: Qt.PointingHandCursor
@@ -24,7 +24,7 @@ Rectangle{  // Header
         TextButton{text: "Movies"; onClicked: main_layout.state = "movie-list"}
         TextButton{text: "TV Shows"; onClicked: main_layout.state = "tvshows-list"}
         TextButton{text: "People"; onClicked: main_layout.state = "people-list"}
-        TextButton{text: "More"; onClicked: main_layout.state = "more-list"}
+        TextButton{text: "More"; onClicked: main_layout.state = "more-view"}
 
         Item{Layout.fillWidth: true}
 
