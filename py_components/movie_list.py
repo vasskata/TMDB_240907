@@ -1,4 +1,4 @@
-from PySide6.QtCore import QAbstractListModel, QModelIndex, QObject, Qt
+from PySide6.QtCore import QAbstractListModel, QModelIndex, QObject, Qt, QUrl
 import tmdbsimple as tmdb
 tmdb.API_KEY = "83cbec0139273280b9a3f8ebc9e35ca9"
 tmdb.REQUESTS_TIMEOUT = 5
@@ -25,7 +25,7 @@ class MovieList(QAbstractListModel):
             poster_path = f"{POSTER_TOOT}{i.get('poster_path')}"
 
             self.__movies.append({
-                "title:": title,
+                "title": title,
                 "release_date": release_date,
                 "vote_average": vote_average,
                 "poster_path": poster_path
