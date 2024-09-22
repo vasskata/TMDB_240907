@@ -1,5 +1,6 @@
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtQuickControls2 import QQuickStyle
 import os, sys
 
 APP_ROOT = os.path.dirname(__file__)
@@ -9,11 +10,14 @@ class TMDB:
     def __init__(self):
         # Create an instace of the QGuiApplication
         self.app = QGuiApplication(sys.argv)
+        QQuickStyle.setStyle("Material")
+
 
         # Instance of QQmlApplicationEngine
         self.engine = QQmlApplicationEngine()
 
         # Load main.qml
+       
         self.engine.load(MAIN_QML)
 
         # Check if qml has root objects
