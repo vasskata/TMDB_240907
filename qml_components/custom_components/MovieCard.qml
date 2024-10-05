@@ -22,27 +22,16 @@ Item{
             source: root.poster
             sourceSize: Qt.size(source_rect.width, source_rect.height)
 
-            Rectangle{
-                id: popularity_progress
-                width: 60
-                height: width
-                color: "teal"
-                radius: width
+            //popularityprogress
+
+            PopularityProgress{
+                popularity: root.popularity
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: -20
                 anchors.left: parent.left
                 anchors.leftMargin: 10
-
-                Text{
-                    
-                    anchors.verticalCenter: popularity_progress.verticalCenter                    
-                    anchors.horizontalCenter: popularity_progress.horizontalCenter                   
-                    text: root.popularity
-                    font.pixelSize: 20
-                    font.bold: true
-                    color: "white"
+                
                 }
-            }
         }
 
         Item{ //Movie title container
