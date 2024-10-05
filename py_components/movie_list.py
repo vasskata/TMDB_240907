@@ -1,6 +1,8 @@
-from PySide6.QtCore import (QAbstractListModel, QModelIndex, Qt, 
-                            QObject, QRunnable, Signal, QThreadPool,
-                            Property)
+
+from PySide6.QtCore import (QAbstractListModel, QModelIndex, 
+                            Qt, QObject, QRunnable, Signal, QThreadPool,
+                            Property
+                            )
 import tmdbsimple as tmdb
 import time
 
@@ -11,7 +13,7 @@ POSTER_TOOT = "https://image.tmdb.org/t/p/w300"
 
 class MovieList(QAbstractListModel):
     DataRole = Qt.UserRole
-    dowload_progress_changed = Signal()
+    download_progress_changed = Signal()
 
     def __init__(self):
         super().__init__()
@@ -22,7 +24,7 @@ class MovieList(QAbstractListModel):
         self.__job_pool.setMaxThreadCount(1)
 
         # Create our worker
-        self.__movie_list_worker = MovieListWorker()
+        self.__movie_list_worker = MovieListWorker(max_pages=20)
         
         # Connect to its signals here
         self.__movie_list_worker.signals.task_finished.connect(self.__insert_movie)
@@ -30,16 +32,17 @@ class MovieList(QAbstractListModel):
         self.__fetch()
 
     def __fetch(self):
-        self.dowload_progress_changed.emit()
+        self.download_progress_changed.emit()
+
         # Start job pool
         self.__job_pool.start(self.__movie_list_worker)
     
     def __insert_movie(self, movie_data):
-
         self.beginInsertRows(QModelIndex(), self.rowCount(), self.rowCount())
         self.__movies.append(movie_data)
         self.endInsertRows()
-        self.dowload_progress_changed.emit()
+
+        self.download_progress_changed.emit()
 
     def fetch_movies_old(self):
         print("Start fetching movies")
@@ -80,12 +83,9 @@ class MovieList(QAbstractListModel):
     def __get_download_max_value(self):
         return self.__movie_list_worker.max_value
 
-    is_downloading = Property(bool, __get_is_downloading, notify=dowload_progress_changed)
-    download_current_value = Property(int, __get_download_current_value, notify=dowload_progress_changed)
-    download_max_value = Property(int, __get_download_max_value, notify=dowload_progress_changed)
-
-
-
+    is_downloading = Property(bool, __get_is_downloading, notify=download_progress_changed)
+    download_current_value = Property(int, __get_download_current_value, notify=download_progress_changed)
+    download_max_value = Property(int, __get_download_max_value, notify=download_progress_changed)
 
 # Threading
 class WorkerSignals(QObject):
@@ -94,39 +94,42 @@ class WorkerSignals(QObject):
     def __init__(self):
         super().__init__()
 
-
 class MovieListWorker(QRunnable):
-    def __init__(self):
+    def __init__(self, max_pages):
         super().__init__()
         self.signals = WorkerSignals()
         self.__movies = tmdb.Movies()
         self.working = False
         self.current_value = 0
         self.max_value = 0
+        self.max_pages = max_pages
 
     def run(self):
         self.current_value = 0
+        self.max_value = 0
         self.working = True
         self.__fetch()
         self.working = False
 
     def __fetch(self):
-        popular_movies = self.__movies.popular(page=1).get("results")
-        self.max_value = len(popular_movies)
+        for page in range(1, self.max_pages + 1):
+            popular_movies = self.__movies.popular(page=page).get("results")
+
+            if self.max_value == 0:
+                self.max_value = len(popular_movies) * self.max_pages
         
-        for i in popular_movies:
-            time.sleep(0.2)
-            self.current_value += 1
-            title = i.get("title")
-            release_date = i.get("release_date")
-            vote_average = int(round(i.get("vote_average") * 10))
-            poster_path = f"{POSTER_TOOT}{i.get('poster_path')}"
+            for i in popular_movies:
+                self.current_value += 1
+                title = i.get("title")
+                release_date = i.get("release_date")
+                vote_average = int(round(i.get("vote_average") * 10))
+                poster_path = f"{POSTER_TOOT}{i.get('poster_path')}"
 
-            movie_data = {
-                "title": title,
-                "release_date": release_date,
-                "vote_average": vote_average,
-                "poster_path": poster_path
-            }
+                movie_data = {
+                    "title": title,
+                    "release_date": release_date,
+                    "vote_average": vote_average,
+                    "poster_path": poster_path
+                }
 
-            self.signals.task_finished.emit(movie_data)
+                self.signals.task_finished.emit(movie_data)
