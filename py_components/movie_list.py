@@ -1,4 +1,6 @@
-from PySide6.QtCore import QAbstractListModel, QModelIndex, Qt, QObject, QRunnable, Signal, QThreadPool
+from PySide6.QtCore import (QAbstractListModel, QModelIndex, Qt, 
+                            QObject, QRunnable, Signal, QThreadPool,
+                            Property)
 import tmdbsimple as tmdb
 import time
 
@@ -9,6 +11,7 @@ POSTER_TOOT = "https://image.tmdb.org/t/p/w300"
 
 class MovieList(QAbstractListModel):
     DataRole = Qt.UserRole
+    dowload_progress_changed = Signal()
 
     def __init__(self):
         super().__init__()
@@ -27,13 +30,16 @@ class MovieList(QAbstractListModel):
         self.__fetch()
 
     def __fetch(self):
+        self.dowload_progress_changed.emit()
         # Start job pool
         self.__job_pool.start(self.__movie_list_worker)
     
     def __insert_movie(self, movie_data):
+
         self.beginInsertRows(QModelIndex(), self.rowCount(), self.rowCount())
         self.__movies.append(movie_data)
         self.endInsertRows()
+        self.dowload_progress_changed.emit()
 
     def fetch_movies_old(self):
         print("Start fetching movies")
@@ -65,6 +71,10 @@ class MovieList(QAbstractListModel):
         if role == MovieList.DataRole:
             return self.__movies[row]
 
+    def __get_is_downloading(self):
+        return self.__movie_list_worker.working
+
+    is_downloading = Property(bool, __get_is_downloading, notify=dowload_progress_changed)
 
 
 # Threading
@@ -74,14 +84,18 @@ class WorkerSignals(QObject):
     def __init__(self):
         super().__init__()
 
+
 class MovieListWorker(QRunnable):
     def __init__(self):
         super().__init__()
         self.signals = WorkerSignals()
         self.__movies = tmdb.Movies()
+        self.working = False
 
     def run(self):
+        self.working = True
         self.__fetch()
+        self.working = False
 
     def __fetch(self):
         popular_movies = self.__movies.popular(page=1).get("results")
