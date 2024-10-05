@@ -1,10 +1,9 @@
-
 from PySide6.QtCore import (QAbstractListModel, QModelIndex, 
                             Qt, QObject, QRunnable, Signal, QThreadPool,
-                            Property
+                            Property, QSortFilterProxyModel, Slot
                             )
 import tmdbsimple as tmdb
-import time
+from datetime import datetime
 
 tmdb.API_KEY = "83cbec0139273280b9a3f8ebc9e35ca9"
 tmdb.REQUESTS_TIMEOUT = 5
@@ -43,25 +42,6 @@ class MovieList(QAbstractListModel):
         self.endInsertRows()
 
         self.download_progress_changed.emit()
-
-    def fetch_movies_old(self):
-        print("Start fetching movies")
-        movies = tmdb.Movies()
-        popular_movies = movies.popular(page=1).get("results")
-
-        for i in popular_movies:
-            title = i.get("title")
-            print(f"Add movie: {title}")
-            release_date = i.get("release_date")
-            vote_average = int(round(i.get("vote_average") * 10))
-            poster_path = f"{POSTER_TOOT}{i.get('poster_path')}"
-
-            self.__movies.append({
-                "title": title,
-                "release_date": release_date,
-                "vote_average": vote_average,
-                "poster_path": poster_path
-            })
         
     def rowCount(self, parent=QModelIndex):
         return len(self.__movies)
@@ -83,9 +63,30 @@ class MovieList(QAbstractListModel):
     def __get_download_max_value(self):
         return self.__movie_list_worker.max_value
 
+    @property
+    def movies(self):
+        return tuple(self.__movies)
+
     is_downloading = Property(bool, __get_is_downloading, notify=download_progress_changed)
     download_current_value = Property(int, __get_download_current_value, notify=download_progress_changed)
     download_max_value = Property(int, __get_download_max_value, notify=download_progress_changed)
+
+class MovieListProxy(QSortFilterProxyModel):
+    def __init__(self):
+        super().__init__()
+        self.sort(0, Qt.AscendingOrder)
+
+        self.__title_filter = ""
+        self.__genre_filter = ""
+
+    @Slot(str)
+    def set_search(self, search_string):
+        self.__title_filter = search_string
+        self.invalidateFilter()
+    
+    def filterAcceptsRow(self, source_row, source_parent):
+        movie_data = self.sourceModel().movies[source_row]
+        return self.__title_filter.lower() in movie_data["title"].lower()
 
 # Threading
 class WorkerSignals(QObject):
@@ -104,12 +105,22 @@ class MovieListWorker(QRunnable):
         self.max_value = 0
         self.max_pages = max_pages
 
+        self.__movie_genres = {}
+        for i in tmdb.Genres().movie_list()["genres"]:
+            self.__movie_genres[i.get("id")] = i.get("name")
+
     def run(self):
         self.current_value = 0
         self.max_value = 0
         self.working = True
         self.__fetch()
         self.working = False
+
+    def __get_genres(self, genre_id_list):
+        if not genre_id_list:
+            return []
+        
+        return [self.__movie_genres[i] for i in genre_id_list]
 
     def __fetch(self):
         for page in range(1, self.max_pages + 1):
@@ -121,15 +132,17 @@ class MovieListWorker(QRunnable):
             for i in popular_movies:
                 self.current_value += 1
                 title = i.get("title")
-                release_date = i.get("release_date")
+                release_date = datetime.strptime(i.get("release_date"), "%Y-%m-%d")
                 vote_average = int(round(i.get("vote_average") * 10))
                 poster_path = f"{POSTER_TOOT}{i.get('poster_path')}"
 
                 movie_data = {
                     "title": title,
-                    "release_date": release_date,
+                    "display_date": release_date.strftime("%Y %B %d"),
+                    "sort_date": release_date,
                     "vote_average": vote_average,
-                    "poster_path": poster_path
+                    "poster_path": poster_path,
+                    "genres": self.__get_genres(i.get("genre_ids"))
                 }
 
                 self.signals.task_finished.emit(movie_data)
