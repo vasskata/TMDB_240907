@@ -76,6 +76,7 @@ class MovieList(QAbstractListModel):
     download_max_value = Property(int, __get_download_max_value, notify=download_progress_changed)
     genres = Property(list, __get_genres, constant= True)
 
+
 class MovieListProxy(QSortFilterProxyModel):
     def __init__(self):
         super().__init__()
@@ -83,6 +84,14 @@ class MovieListProxy(QSortFilterProxyModel):
 
         self.__title_filter = ""
         self.__genre_filter = ""
+        self.__sorting_options = [
+            "Rating Descending",
+            "Rating Ascending",
+            "Release Date Descending",
+            "Release Date Ascending",
+            "Title (A-Z)",
+            "Title (Z-A)"
+        ]
 
     @Slot(str)
     def set_search(self, search_string):
@@ -92,6 +101,11 @@ class MovieListProxy(QSortFilterProxyModel):
     def filterAcceptsRow(self, source_row, source_parent):
         movie_data = self.sourceModel().movies[source_row]
         return self.__title_filter.lower() in movie_data["title"].lower()
+    
+     def __get_sorting_options(self):
+        return self.__sorting_options
+    
+    sorting_options = Property(list, __get_sorting_options, constant=True)
 
 # Threading
 class WorkerSignals(QObject):
