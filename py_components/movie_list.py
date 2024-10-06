@@ -86,7 +86,8 @@ class MovieListProxy(QSortFilterProxyModel):
 
         self.__title_filter = ""
         self.__genre_filter = ""
-        self.__current_sorting = ""
+        self.__current_sorting = "Rating Descending"
+
         self.__sorting_options = [
             "Rating Descending",
             "Rating Ascending",
@@ -105,6 +106,24 @@ class MovieListProxy(QSortFilterProxyModel):
         movie_data = self.sourceModel().movies[source_row]
         return self.__title_filter.lower() in movie_data["title"].lower()
     
+    def lessThan(self, source_left, source_right):
+        left_movie=self.sourceModel().data(source_left, Qt.UserRole)
+        right_movie=self.sourceModel().data(source_right, Qt.UserRole)
+
+        if self.current_sorting == self.__sorting_options[0]:
+            return left_movie["vote_average"] > right_movie["vote_average"]
+        elif self.__current_sorting == self.__sorting_options[1]:
+            return left_movie["vote_average"] < right_movie["vote_average"]
+        elif self.__current_sorting == self.__sorting_options[2]:
+            return left_movie["sort_date"] > right_movie["sort_date"]
+        elif self.__current_sorting == self.__sorting_options[3]:
+            return left_movie["sort_date"] < right_movie["sort_date"]
+        elif self.__current_sorting == self.__sorting_options[4]:
+            return left_movie["title"] < right_movie["title"]
+        elif self.__current_sorting == self.__sorting_options[5]:
+            return left_movie["title"] > right_movie["title"]
+
+
     def __get_sorting_options(self):
         return self.__sorting_options
     
@@ -115,7 +134,7 @@ class MovieListProxy(QSortFilterProxyModel):
         self.__current_sorting = new_sorting
         self.sorting_changed.emit()
         self.invalidate()
-        
+
     sorting_options = Property(list, __get_sorting_options, constant=True)
     current_sorting = Property(str, __get_current_sorting, __set_current_sorting, notify=sorting_changed)
 
