@@ -9,81 +9,74 @@ Item{
         width: root.width
         height: 700
 
-        Rectangle{
+        Rectangle{ // black background
             color: "black"
-            
             anchors.fill: parent
-            
         }
+
         Image{ // Backdrop
-            source: Resources.get("backdrop.webp")
+            source: MovieDetails.backdrop
             width: parent.width
             height: parent.height
             fillMode: Image.PreserveAspectCrop
             opacity: 0.3
         }
+
         RowLayout{
-            
             anchors.fill: parent
-            Item{ //poster container
+            
+            Item{  // poster container
                 implicitHeight: 450
                 implicitWidth: 450
-                
                 Image{
-                    
                     anchors.fill: parent
-                    
-                    source: Resources.get("poster.webp")
+                    source: MovieDetails.poster
                     fillMode: Image.PreserveAspectFit
-    
                 }
             }
-            ColumnLayout{ // Movie details container
-                
+
+            ColumnLayout{  // Movie details container
                 Layout.fillWidth: true
-                
+
                 TitleText{
-                    text: "Deadpool & Rozsomák (2024)"
+                    text: MovieDetails.title
                     color: "white"
                     font.pixelSize: 35
                 }
-                Text{
 
-                    text: "2024. 07. 25. (HU) Akció, Vígjáték, Sci-Fi 2h 8m"
+                Text{
+                    text: MovieDetails.date_genres_runtime
                     color: "white"
                     font.pixelSize: 16
                 }
+
                 PopularityProgress{
-                    popularity: 85
+                    popularity: MovieDetails.popularity
                     implicitWidth: 80
                     implicitHeight: 80
                 }
-                Text{
 
-                    text: "Mindenki megérdemli a happy endet."
+                SubtitleText{
+                    text: MovieDetails.tagline
                     color: "white"
-                    font.pixelSize: 16
+                    font.pixelSize: 20
                 }
+
                 Text{
-                    text: "Bevezető"
+                    text: "Overview"
                     font.bold: true
                     color: "white"
                     font.pixelSize: 16
                 }
+
                 Text{
-                    
                     Layout.fillWidth: true
-                    
-                    text: "A kedveszegett Wade Wilson számára a polgári élet kész kínlódás. Az erkölcsileg rugalmas zsoldos gyúnyáját végleg szögre akasztotta, amikor azonban világát a megsemmisülés fenyegeti, vonakodva bár, de ismét magára ölti jelmezét és még vonakvóbb… vonakodóbb? Vonatkotróbb? Meg kell győznie a vonakodó Rozsomákot, hogy - ez így szar..."
+                    text: MovieDetails.overview
                     color: "white"
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                     font.pixelSize: 16
-
                 }
-
-
             }
-            
         }
     }
 }

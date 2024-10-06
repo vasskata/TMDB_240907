@@ -17,7 +17,7 @@ ApplicationWindow{
         id: main_layout
         anchors.fill: parent
 
-        state: "movie-details" //movie-list
+        state: "movie-list" //movie-list
         states: [
             State{
                 name: "movie-details"

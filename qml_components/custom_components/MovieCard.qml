@@ -76,7 +76,7 @@ Item{
         cursorShape: Qt.PointingHandCursor
         onClicked: {
             main_layout.state = "movie-details"
-            print(root.movie_id)
+            MovieDetails.set_movie(root.movie_id)
             
             }
     }
