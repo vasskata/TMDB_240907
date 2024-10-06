@@ -25,7 +25,7 @@ Rectangle{
 
             ctx.reset()
             ctx.beginPath()
-            ctx.fillStyle = root.popularity > 60? "lightgreen" : "yellow"
+            ctx.fillStyle = root.popularity > 60? "yellow" : "red"
 
             ctx.arc(centerX, centerY, radius, 0, radiant, false)
             ctx.lineTo(centerX, centerY)
