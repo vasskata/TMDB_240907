@@ -57,7 +57,7 @@ Item{ // Sidebar
                 Repeater{
                     model: MovieList.genres
 
-                    TextButton{text: modelData; color: "black"; font.bold: false; font.pixelSize: 16}
+                    TextButton{text: modelData; color: "black"; font.bold: MovieListProxy.current_genre == text? true:false; font.pixelSize: 16; onClicked: MovieListProxy.current_genre = text}
                 }
             }
         }
